@@ -15,3 +15,5 @@ library(formatR)
 library(shiny)
 
 formatR::tidy_app()
+
+# TODO: add test suite
