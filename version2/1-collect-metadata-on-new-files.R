@@ -98,17 +98,18 @@ add_metadata_to_file <- function(file_name, route) {
   )
 }
 
+
+metadata <- read.csv(
+  "./data/metadata.csv",
+  header = TRUE,
+  sep = ",",
+  quote = "\""
+)
+
 for (i in 1:length(files)) {
 
   file_location <- paste(c("./data/", files[i]), sep = "", collapse = "")
   route <- readGPX(file_location)
-
-  metadata <- read.csv(
-    "./data/metadata.csv",
-    header = TRUE,
-    sep = ",",
-    quote = "\""
-  )
 
   # check if file is already in metadata file (by filename). if it is, don't add_metadata_to_file()
   if (length(metadata$file_path) == 0 | length(which(metadata$file_path == file_location)) == 0) {
