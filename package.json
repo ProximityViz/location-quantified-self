@@ -1,0 +1,24 @@
+{
+  "name": "location-quantified-self",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://mapsandapps@github.com/ProximityViz/location-quantified-self.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ProximityViz/location-quantified-self/issues"
+  },
+  "homepage": "https://github.com/ProximityViz/location-quantified-self#readme",
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "moment": "^2.14.1",
+    "request": "^2.74.0"
+  }
+}
