@@ -4,34 +4,80 @@ var tracks = require('./tracks/list-of-tracks.json');
 
 var rightNow = moment();
 
-var lastYear = []; // TODO: might not need these; just build geojson files in original for loop
-var lastMonth = [];
-var lastDay = [];
-var allTracks = [];
+// get all modes used in tracks
+function getModes() {
+  var modesObject = {};
+  var modes = [];
+  for (var i in tracks) {
+    if (tracks.hasOwnProperty(i)) {
+      var mode = tracks[i].mode;
+      if (typeof(modesObject[tracks[i].mode]) === 'undefined') {
+        modes.push(tracks[i].mode);
+      }
+      modesObject[tracks[i].mode] = 0;
+    }
+  }
+  return modes;
+}
 
+// eventually this should be an option set by the user, not in this file
+function renameModes(modes) {
+  var modesObject = {};
+  for (var i in modes) {
+    if (modes.hasOwnProperty(i)) {
+      var mode = modes[i];
+      if (mode === 'Other') {
+        modesObject[mode] = 'Car or Transit';
+      } else {
+        modesObject[mode] = mode;
+      }
+    }
+  }
+  return modesObject;
+}
+
+var modeRenameObject = renameModes(getModes());
+
+var metaObject = {};
+var timePeriods = ['Day', 'Month', 'Year', 'All'];
+function createMetaObject() {
+  for (var i in timePeriods) {
+    if (timePeriods.hasOwnProperty(i)) {
+      var timePeriod = timePeriods[i];
+      metaObject[timePeriod] = {};
+      for (var j in modeRenameObject) {
+        if (modeRenameObject.hasOwnProperty(j)) {
+          var mode = modeRenameObject[j];
+          metaObject[timePeriod][mode] = [];
+        }
+      }
+    }
+  }
+}
+createMetaObject();
+
+// categorize tracks
 for (var i in tracks) {
   if (tracks.hasOwnProperty(i)) {
     var track = tracks[i];
     var time = track.start_time;
     var daysAgo = rightNow.diff(moment(time, 'ddd, D MMM YYYY HH:mm:ss'), 'days');
     var hoursAgo = rightNow.diff(moment(time, 'ddd, D MMM YYYY HH:mm:ss'), 'hours');
-    allTracks.push(track.name);
+    var trackMode = modeRenameObject[track.mode];
     var trackCoords = getLine(fs.readFileSync('./tracks/' + track.name + '.json', 'utf8'));
+    metaObject['All'][trackMode].push(trackCoords);
     if (daysAgo <= 1 && hoursAgo <= 24) {
-      lastDay.push(trackCoords);
-      lastMonth.push(trackCoords);
-      lastYear.push(trackCoords);
+      metaObject['Day'][trackMode].push(trackCoords);
+      metaObject['Month'][trackMode].push(trackCoords);
+      metaObject['Year'][trackMode].push(trackCoords);
     } else if (daysAgo <= 30) {
-      lastMonth.push(trackCoords);
-      lastYear.push(trackCoords);
+      metaObject['Month'][trackMode].push(trackCoords);
+      metaObject['Year'][trackMode].push(trackCoords);
     } else if (daysAgo <= 365) {
-      lastYear.push(trackCoords);
+      metaObject['Year'][trackMode].push(trackCoords);
     }
   }
 }
-
-console.log(JSON.stringify(lastDay)); // TODO: this output should be mappable in Leaflet (see http://leafletjs.com/examples/geojson.html)
-// console.log(lastMonth);
 
 function getLine(file) {
   var coordinates = [];
@@ -46,5 +92,20 @@ function getLine(file) {
   return {"type": "LineString", "coordinates": coordinates};
 }
 
-
-// this file should output one geojson file per relevant time period
+function saveLayers() {
+  for (var i in metaObject) {
+    if (metaObject.hasOwnProperty(i)) {
+      var timePeriodData = metaObject[i];
+      var timePeriod = i;
+      for (var j in timePeriodData) {
+        if (timePeriodData.hasOwnProperty(j)) {
+          var modeData = timePeriodData[j];
+          var mode = j;
+          var fileName = timePeriod + ' ' + mode;
+          fs.writeFile('./layers/' + fileName + '.json', JSON.stringify(metaObject[timePeriod][mode]));
+        }
+      }
+    }
+  }
+}
+saveLayers(); // TODO: this output should be mappable in Leaflet (see http://leafletjs.com/examples/geojson.html)
