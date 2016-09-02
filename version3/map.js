@@ -1,32 +1,48 @@
 console.log(layersData); // from layers/layers.js
 
-var selectedTimePeriod = 'Day';
+var layersOnMap = [];
+
+var selectedTimePeriod = 'All';
 function changeSelectedTimePeriod(timePeriod) {
   selectedTimePeriod = timePeriod;
   console.log(timePeriod);
+  // remove all existing tracks
+  for (var i in layersOnMap) {
+    if (layersOnMap.hasOwnProperty(i)) {
+      var layer = layersOnMap[i];
+      console.log(layer);
+      map.removeLayer(layer);
+    }
+  }
+  addALayerToTheMap();
+  // TODO: change button classes
 }
 
-var selectedMode = 'All';
+var selectedMode = 'Walking';
 function changeSelectedMode(mode) {
   selectedMode = mode;
 }
 
 var timePeriodsDiv = document.getElementById('time-periods');
-var modesDiv = document.getElementById('modes');
 for (var i in layersData) {
   if (layersData.hasOwnProperty(i)) {
     var timePeriod = layersData[i];
-    timePeriodString = "'" + i + "'";
-    timePeriodsDiv.innerHTML = timePeriodsDiv.innerHTML + '<button onclick="changeSelectedTimePeriod(' + timePeriodString + ')">' + i + '</button>';
+    var timePeriodString = "'" + i + "'";
+    var classes = i === selectedTimePeriod ? 'class="selected"' : '';
+    timePeriodsDiv.innerHTML = timePeriodsDiv.innerHTML + '<button onclick="changeSelectedTimePeriod(' + timePeriodString + ')"' + classes + '>' + i + '</button>';
   }
 }
 
+var modesDiv = document.getElementById('modes');
+var modes = [];
+var colors = ["#494846", "#0c7229", "#f07300", "#633301"];
 // TODO: change this to not be dependent on there being a 'Year' layer
 for (var i in layersData['Year']) {
   if (layersData['Year'].hasOwnProperty(i)) {
     var mode = layersData['Year'][i];
     modeString = "'" + i + "'";
     modesDiv.innerHTML = modesDiv.innerHTML + '<button onclick="changeSelectedMode(' + modeString + ')">' + i + '</button>';
+    modes.push(mode);
   }
 }
 
@@ -43,7 +59,21 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=p
   id: 'mapbox.light'
 }).addTo(map);
 
-L.geoJson(layersData['Year']['Hiking']).addTo(map);
+var bikingStyle = {
+  "color": colors[2],
+  "weight": 5,
+  "opacity": 0.5
+};
+
+function addALayerToTheMap() {
+  var aLayer = L.geoJson(layersData[selectedTimePeriod][selectedMode], {
+    style: bikingStyle
+  });
+  layersOnMap.push(aLayer);
+  aLayer.addTo(map);
+}
+addALayerToTheMap();
+
 // TODO: map default (day or all and all)
 // TODO: give those buttons a "selected" class
 // TODO: activate buttons
