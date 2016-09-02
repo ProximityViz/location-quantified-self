@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/ProximityViz/location-quantified-self#readme",
   "dependencies": {
+    "cron": "^1.1.0",
     "fs": "0.0.1-security",
     "moment": "^2.14.1",
     "request": "^2.74.0"
