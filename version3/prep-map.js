@@ -93,19 +93,27 @@ function getLine(file) {
 }
 
 function saveLayers() {
-  for (var i in metaObject) {
-    if (metaObject.hasOwnProperty(i)) {
-      var timePeriodData = metaObject[i];
-      var timePeriod = i;
-      for (var j in timePeriodData) {
-        if (timePeriodData.hasOwnProperty(j)) {
-          var modeData = timePeriodData[j];
-          var mode = j;
-          var fileName = timePeriod + ' ' + mode;
-          fs.writeFile('./layers/' + fileName + '.json', JSON.stringify(metaObject[timePeriod][mode]));
-        }
-      }
-    }
-  }
+  fs.writeFile('./layers/layers.js', 'var layersData = ' + JSON.stringify(metaObject) + ';');
 }
+// function saveLayers() {
+//   for (var i in metaObject) {
+//     if (metaObject.hasOwnProperty(i)) {
+//       var timePeriodData = metaObject[i];
+//       var timePeriod = i;
+//       for (var j in timePeriodData) {
+//         if (timePeriodData.hasOwnProperty(j)) {
+//           var modeData = timePeriodData[j];
+//           var mode = j;
+//           var fileName = timePeriod + ' ' + mode;
+//           fs.writeFile('./layers/' + fileName + '.json', JSON.stringify(metaObject[timePeriod][mode]));
+//           // TODO: maybe these should be JS instead of JSON for easier file reading
+//         }
+//       }
+//     }
+//   }
+// }
 saveLayers(); // TODO: this output should be mappable in Leaflet (see http://leafletjs.com/examples/geojson.html)
+
+// the below aren't needed if we use layers.js
+// TODO: write modeRenameObject to a file
+// TODO: write timePeriods to a file (or maybe better, read it from a file)
